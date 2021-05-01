@@ -19,19 +19,21 @@ class DiscordBot(discord.Client):
             return
 
         # wb currency?
-        '''
+        """
             Command that gets more information on a stock and calculates how many stocks able to purchase
             $ticket [req: symbol] [opt: amount to spend: float]
             ex: $ticket AAPL
             ex: $ticket GOOGL 2000
-        '''
+        """
         if message.content.startswith("$ticket"):
             input_message = message.content.split(" ")
             length = len(input_message)
-            output_message = ''
+            output_message = ""
             if length == 1:
                 # missing symbol required parameter
-                output_message = "Missing required symbol parameter try `$ticket (SYMBOL)`"
+                output_message = (
+                    "Missing required symbol parameter try `$ticket (SYMBOL)`"
+                )
             else:
                 ticket = input_message[1]
                 stock = yf.Ticker(ticket)
@@ -56,7 +58,9 @@ class DiscordBot(discord.Client):
                             except ValueError:
                                 output_message = "Invalid input for amount to spend"
                 else:
-                    output_message = "Stock not found, try again with a different symbol"
+                    output_message = (
+                        "Stock not found, try again with a different symbol"
+                    )
             await message.channel.send(output_message)
 
 
