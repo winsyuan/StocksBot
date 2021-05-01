@@ -2,12 +2,30 @@ import discord
 from decouple import config
 import yfinance as yf
 import math
+from bs4 import BeautifulSoup
+import requests
 
 
 def valid_stock_check(stock):
     if len(stock.info) == 1:
         return False
     return True
+
+
+def scrap_yahoo_trending_stocks():
+    yahoo_trending_url = "https://finance.yahoo.com/most-active/"
+    response = requests.get(yahoo_trending_url)
+    soup = BeautifulSoup(response.content, "lxml")
+    data = soup.select(".simpTblRow")[:6]
+    return [
+        {
+            "ticket": item.select("[aria-label=Symbol]")[0].get_text(),
+            "name": item.select("[aria-label=Name]")[0].get_text(),
+            "price": item.select("[aria-label*=Price]")[0].get_text(),
+            "change_percentage": item.select('[aria-label="% Change"]')[0].get_text(),
+        }
+        for item in data
+    ]
 
 
 class DiscordBot(discord.Client):
@@ -61,6 +79,23 @@ class DiscordBot(discord.Client):
                     output_message = (
                         "Stock not found, try again with a different symbol"
                     )
+            await message.channel.send(output_message)
+
+        if message.content == "$active":
+            output_message = "**Most Active Stocks**```\n"
+            data = scrap_yahoo_trending_stocks()
+            for i in range(len(data)):
+                output_message += (
+                    data[i]["name"]
+                    + " "
+                    + data[i]["ticket"]
+                    + " $"
+                    + data[i]["price"]
+                    + " "
+                    + data[i]["change_percentage"]
+                    + "\n"
+                )
+            output_message += "```"
             await message.channel.send(output_message)
 
 
