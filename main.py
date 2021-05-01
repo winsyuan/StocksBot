@@ -3,18 +3,17 @@ import os
 from decouple import config
 
 
-client = discord.Client()
+class DiscordBot(discord.Client):
+    async def on_ready(self):
+        print("Logged in as {0.user}".format(client))
 
-@client.event
-async def on_ready():
-    print('Logged in as {0.user}'.format(client))
+    async def on_message(self, message):
+        if message.author == client.user:
+            return
 
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
+        if message.content.startswith(""):
+            await message.channel.send("")
 
-    if message.content.startswith(""):
-            await message.channel.send('')
 
-client.run(config('DISCORD_TOKEN'))
+client = DiscordBot()
+client.run(config("DISCORD_TOKEN"))
