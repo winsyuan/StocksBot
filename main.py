@@ -1,5 +1,6 @@
 import discord
 import os
+import random
 from decouple import config
 
 
@@ -11,9 +12,9 @@ class DiscordBot(discord.Client):
         if message.author == client.user:
             return
 
-        if message.content.startswith(""):
-            await message.channel.send("")
-
-
+        numbers = ['1','2','3','4','5']
+        if message.content == ("$number"):
+            response = random.choice(numbers)
+               await message.channel.send(response)
 client = DiscordBot()
 client.run(config("DISCORD_TOKEN"))
