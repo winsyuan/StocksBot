@@ -1,5 +1,7 @@
 import discord
 import os
+from decouple import config
+
 
 client = discord.Client()
 
@@ -11,11 +13,8 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-    
-    if message.content.startswith("$hello"):
-        await message.channel.send('Hello!')
 
-    if message.content.startswith("$bob"):
-            await message.channel.send('Bob!')
+    if message.content.startswith(""):
+            await message.channel.send('')
 
-client.run(os.getenv('DISCORD_TOKEN'))
+client.run(config('DISCORD_TOKEN'))
