@@ -1,7 +1,6 @@
 import discord
 from decouple import config
 import yfinance as yf
-import math
 from bs4 import BeautifulSoup
 import requests
 
@@ -36,19 +35,16 @@ class DiscordBot(discord.Client):
         if message.author == client.user:
             return
 
-        # wb currency?
         """
-            Command that gets more information on a stock and calculates how many stocks able to purchase
-            $ticket [req: symbol] [opt: amount to spend: float]
+            Command that gets more information on a stock
+            $ticket [req: symbol]
             ex: $ticket AAPL
-            ex: $ticket GOOGL 2000
         """
         if message.content.startswith("$ticket"):
             input_message = message.content.split(" ")
             length = len(input_message)
             output_message = ""
             if length == 1:
-                # missing symbol required parameter
                 output_message = (
                     "Missing required symbol parameter try `$ticket (SYMBOL)`"
                 )
@@ -58,23 +54,23 @@ class DiscordBot(discord.Client):
                 valid = valid_stock_check(stock)
                 if valid:
                     if length == 2:
-                        # output stock info with stock.info.{w.e}
-                        output_message = "Found stock, format the info and print it"
-                    else:
-                        ticket = input_message[1]
-                        stock = yf.Ticker(ticket)
-                        valid = valid_stock_check(stock)
-                        if valid:
-                            try:
-                                spend_amount = float(input_message[2])
-                                if spend_amount < 0:
-                                    output_message = "Invalid input for amount to spend"
-                                else:
-                                    # amount_stocks = math.floor(spend_amount / stock.info['regularMarketPrice'])
-                                    # remaining_amount = spend_amount - amount_stocks * stock.info['regularMarketPrice']
-                                    output_message = "Received valid stock ticket and valid number input"
-                            except ValueError:
-                                output_message = "Invalid input for amount to spend"
+                        output_message = (
+                            "**Information about " + ticket.upper() + "** \n"
+                        )
+                        data = stock.history(period="1d")
+                        output_message += (
+                            "Company Name: "
+                            + stock.info["longName"]
+                            + "\n"
+                            + "Opening Stock Price: "
+                            + str(round(data["Open"][0], 3))
+                            + "\n"
+                            + "Closing Stock Price: "
+                            + str(round(data["Close"][0], 3))
+                            + "\n"
+                            + "Stock Volume: "
+                            + str(round(data["Volume"][0], 3))
+                        )
                 else:
                     output_message = (
                         "Stock not found, try again with a different symbol"
