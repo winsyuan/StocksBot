@@ -17,7 +17,7 @@ class DiscordBot(discord.Client):
             return today_data['Close'][0]
         if message.author == client.user:
             return
-        if message.content.startswith("$ticket"):
+        if message.content.startswith("$buy"):
             userMessage = message.content.split()
             try:
                 stock = userMessage[1]
@@ -26,17 +26,27 @@ class DiscordBot(discord.Client):
             try:
                 money = userMessage[2]
             except:
-                await message.channel.send("Not a valid price")
+                await message.channel.send("Amount of money not entered")
+            try:
+                floatMoney = float(money)
+            except:
+                await message.channel.send("Please enter a valid number")
             try:
                 stockPrice = current_price(stock)
             except:
                 await message.channel.send("Not a valid stock")
-            stockAmount = float(money)//float(stockPrice)
-            moneyLeftover = float(money)%float(stockPrice)
-            await message.channel.send("You can buy " + str(stockAmount) + " stocks of " + stock + " with $" + str(moneyLeftover) + " leftover")
-            #stock = yf.Ticker("AAPL")
+            stockAmount = int(floatMoney//float(stockPrice))
+            moneyLeftover = "{:.2f}".format(floatMoney%float(stockPrice))
+            if(stockAmount == 0):
+                await message.channel.send("```You cannot buy a full share of " + stock + " with $" + money + "```")
+            elif(stockAmount == 1):
+                await message.channel.send("```You can buy " + str(stockAmount) + " share of " + stock + " with $" + moneyLeftover + " leftover```")
+            else:
+                await message.channel.send("```You can buy " + str(stockAmount) + " shares of " + stock + " with $" + moneyLeftover + " leftover```")
+            stock = yf.Ticker("AMZN") 
             #hist = stock.history(period="max")
             #print(current_price('AAPL'))
-            #await message.channel.send(aapl)
+            await message.channel.send(stock.sustanability)
+            
 client = DiscordBot()
 client.run(config("DISCORD_TOKEN"))
