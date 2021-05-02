@@ -1,30 +1,34 @@
 import discord
-import os
 from decouple import config
 
+intents = discord.Intents.default()
 
-class DiscordBot(discord.Client):
-
-
-    async def on_go():
-        print('Bot is ready')
-    async def on_ready(self):
-        print("Logged in as {0.user}".format(client))
-
-    async def on_message(self, message):
-        if message.author == client.user:
-            return
-
-        if message.content.startswith("hello"):
-            await message.channel.send("bye")
+intents.members = True
+client = discord.Client(intents=intents)
 
 
-    async def new_member(self, member):
-        await message.channel.send(f'(member) has joined the server.')
+@client.event
+async def on_ready():
+    print('Logged in as {0.user}'.format(client))
 
 
-    async def member_removed(self, member):
-        await message.channel.send(f'(member) has left')
+@client.event
+async def on_message(message):
+    if message.author == client.user:
+        return
 
-client = DiscordBot()
+    if message.content.startswith("hello"):
+        await message.channel.send("bye")
+
+
+@client.event
+async def on_member_join(member):
+    await member.send('user joined')
+
+
+@client.event
+async def on_member_remove(member):
+    await member.send('user left')
+
+
 client.run(config("DISCORD_TOKEN"))
