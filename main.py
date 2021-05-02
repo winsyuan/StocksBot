@@ -19,17 +19,19 @@ def valid_stock_check(stock):
 def scrap_yahoo_trending_stocks():
     yahoo_trending_url = "https://finance.yahoo.com/most-active/"
     response = requests.get(yahoo_trending_url)
-    soup = BeautifulSoup(response.content, "lxml")
-    data = soup.select(".simpTblRow")[:6]
-    return [
-        {
-            "ticket": item.select("[aria-label=Symbol]")[0].get_text(),
-            "name": item.select("[aria-label=Name]")[0].get_text(),
-            "price": item.select("[aria-label*=Price]")[0].get_text(),
-            "change_percentage": item.select('[aria-label="% Change"]')[0].get_text(),
-        }
-        for item in data
-    ]
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, "lxml")
+        data = soup.select(".simpTblRow")[:6]
+        return [
+            {
+                "ticket": item.select("[aria-label=Symbol]")[0].get_text(),
+                "name": item.select("[aria-label=Name]")[0].get_text(),
+                "price": item.select("[aria-label*=Price]")[0].get_text(),
+                "change_percentage": item.select('[aria-label="% Change"]')[0].get_text(),
+            }
+            for item in data
+        ]
+    return []
 
 
 @client.event
