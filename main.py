@@ -95,7 +95,9 @@ async def on_message(message):
         length = len(input_message)
         output_message = ""
         if length == 1:
-            output_message = "Missing required symbol parameter try `$ticker (TICKER SYMBOL)`"
+            output_message = (
+                "Missing required symbol parameter try `$ticker (TICKER SYMBOL)`"
+            )
         else:
             ticker = input_message[1]
             stock = yf.Ticker(ticker)
