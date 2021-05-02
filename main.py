@@ -15,7 +15,7 @@ client = discord.Client(intents=intents)
 @client.event
 async def on_member_join(member):
     await member.send("Welcome to the RUhacks stonks server!")
-    await member.send("Are you a new to investing?(yes/no)")
+    await member.send("Are you a new to investing? (yes/no)")
 
 
 def valid_stock_check(stock):
@@ -32,7 +32,7 @@ def scrap_yahoo_trending_stocks():
         data = soup.select(".simpTblRow")[:6]
         return [
             {
-                "ticket": item.select("[aria-label=Symbol]")[0].get_text(),
+                "ticker": item.select("[aria-label=Symbol]")[0].get_text(),
                 "name": item.select("[aria-label=Name]")[0].get_text(),
                 "price": item.select("[aria-label*=Price]")[0].get_text(),
                 "change_percentage": item.select('[aria-label="% Change"]')[
@@ -61,19 +61,19 @@ async def on_message(message):
             await message.channel.send(
                 "**How you can get started:**"
                 "\n1. You should open an account with a stocks brokerage("
-                "ex. Wealthsimple, Investing through your bank, Questrade, etc"
+                "ex. Wealthsimple, Investing through your bank, Questrade, etc."
                 "\n2. Open a Tax Free Savings Account(TFSA), this will save you from paying any "
                 "taxes on the profits you make."
-                "\n3. Research companies and find stocks you are interested"
-                "\n4. When you you find a good entry point use your TFSA and start investing"
+                "\n3. Research companies and find stocks you are interested."
+                "\n4. When you you find a good entry point use your TFSA and start investing."
                 "\n\nNow that you are ready, this server will help you find stocks, the prices and "
-                "trends in the market\n"
-                "Enter `$help` to find commands you can use in this server for analyzing stock"
+                "trends in the market.\n"
+                "Enter `$help` to find commands you can use in this server for analyzing stock."
             )
         # Answer with no
         elif message.content.startswith("no") or message.content.startswith("No"):
             await message.channel.send(
-                'Enter "$help" to find commands you can use in this server for analyzing stock'
+                'Enter "$help" to find commands you can use in this server for analyzing stock.'
             )
         # Invalid input
         elif (
@@ -82,27 +82,27 @@ async def on_message(message):
             and not message.content.startswith("$active")
             and not message.content.startswith("$buy")
             and not message.content.startswith("$graph")
-            and not message.content.startswith("$ticket")
+            and not message.content.startswith("$ticker")
         ):
             await message.channel.send("Invalid input, please enter a valid input.")
     """
         Command that gets more information on a stock
-        $ticket [req: symbol]
-        ex: $ticket AAPL
+        $ticker [req: symbol]
+        ex: $ticker AAPL
     """
-    if message.content.startswith("$ticket"):
+    if message.content.startswith("$ticker"):
         input_message = message.content.split(" ")
         length = len(input_message)
         output_message = ""
         if length == 1:
-            output_message = "Missing required symbol parameter try `$ticket (SYMBOL)`"
+            output_message = "Missing required symbol parameter try `$ticker (TICKER SYMBOL)`"
         else:
-            ticket = input_message[1]
-            stock = yf.Ticker(ticket)
+            ticker = input_message[1]
+            stock = yf.Ticker(ticker)
             valid = valid_stock_check(stock)
             if valid:
                 if length == 2:
-                    output_message = "**Information about " + ticket.upper() + "** \n"
+                    output_message = "**Information about " + ticker.upper() + "** \n"
                     data = stock.history(period="1d")
                     output_message += (
                         "Company Name: "
@@ -122,13 +122,13 @@ async def on_message(message):
         await message.channel.send(output_message)
 
     if message.content == "$active":
-        output_message = "**Most Active Stocks**```\nCompany Name | Ticket | Stock Price | Percentage Change  \n"
+        output_message = "**Most Active Stocks**```\nCompany Name | ticker | Stock Price | Percentage Change  \n"
         data = scrap_yahoo_trending_stocks()
         for i in range(len(data)):
             output_message += (
                 data[i]["name"]
                 + " "
-                + data[i]["ticket"]
+                + data[i]["ticker"]
                 + " $"
                 + data[i]["price"]
                 + " "
@@ -139,8 +139,8 @@ async def on_message(message):
         await message.channel.send(output_message)
 
     def current_price(symbol):  # function to get current price of stock
-        ticket = yf.Ticker(symbol)
-        today_data = ticket.history(period="1d")
+        ticker = yf.Ticker(symbol)
+        today_data = ticker.history(period="1d")
         return today_data["Close"][0]
 
     if message.content.startswith(
@@ -160,12 +160,12 @@ async def on_message(message):
         try:
             floatMoney = float(money)
         except:
-            await message.channel.send("Please enter a valid number")
+            await message.channel.send("Please enter a valid number.")
             return
         try:
             stockPrice = current_price(stock)
         except:
-            await message.channel.send("Not a valid stock")
+            await message.channel.send("Not a valid stock.")
             return
         stockAmount = int(floatMoney // float(stockPrice))
         moneyLeftover = "{:.2f}".format(floatMoney % float(stockPrice))
@@ -177,11 +177,11 @@ async def on_message(message):
             await message.channel.send(
                 "```You can buy "
                 + str(stockAmount)
-                + " share of "
+                + " shares of "
                 + stock
                 + " with $"
                 + moneyLeftover
-                + " leftover```"
+                + " leftover.```"
             )
         else:
             await message.channel.send(
@@ -191,12 +191,12 @@ async def on_message(message):
                 + stock
                 + " with $"
                 + moneyLeftover
-                + " leftover```"
+                + " leftover.```"
             )
     if message.content.startswith("$graph"):  # The bot outputs a graph
         graphMessage = (
             message.content.split()
-        )  #  The format is $graph StockName startdate enddate
+        )  #  The format is $graph |StockName| |startdate| |enddate| |time interval|
         try:
             stockName = graphMessage[1]
             startDate = graphMessage[2]
@@ -224,16 +224,23 @@ async def on_message(message):
         os.remove("plot.png")
     if message.content.startswith("$help"):
         await message.channel.send(
-            "valid commands include `$active`, `$buy`, and `$graph`\n"
+            "Valid commands include `$active`, `$buy`, `$graph`, `$ticker`\n"
         )
         await message.channel.send(
-            "> `$active` sends information on the most actively traded stocks\n> **To use $active:** enter *$active*\n"
+            "> `$active` displays the most actively traded stocks\n> **To use $active:** enter *$active*\n"
         )
         await message.channel.send(
-            "> `$buy` looks at the stock's price and calculates how many shares you can buy with a given amount of money\n> **To use $buy:** enter *$buy*, the ticker symbol and the amount of money you would like to spend, all separated by spaces \n"
+            "> `$buy` looks at the stock's price and calculates how many shares you can buy with a given amount of "
+            "money\n> **To use $buy:** enter *$buy*, the ticker symbol and the amount of money you would like to "
+            "spend, all separated by spaces \n "
         )
         await message.channel.send(
-            "> `$graph` sends a graph of a given stock over a given time interval\n> **To use $graph:** enter *$graph*, the ticker symbol, the start and end date, and the time interval, all separated by spaces \n"
+            "> `$graph` sends a graph of a given stock over a given time interval\n> **To use $graph:** enter "
+            "*$graph*, the ticker symbol, the start and end date, and the time interval, all separated by spaces \n "
+        )
+        await message.channel.send(
+            "> `$ticker` displays key information on a chosen stock\n> **To use $ticker:** enter *$ticker*, "
+            "and the ticker symbol\n "
         )
 
 
