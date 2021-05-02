@@ -56,6 +56,13 @@ class DiscordBot(discord.Client):
             hist = stock.history(start=startDate, end=endDate,interval = interval,actions=False)
             mpf.plot(hist,type='candle',volume=True,style='yahoo',mav=(20),title=stockName, tight_layout=True,savefig='plot.png')
             await message.channel.send(file=discord.File('plot.png'))
-            os.remove('plot.png')            
+            os.remove('plot.png')
+        if message.content.startswith("$help"):
+            await message.channel.send("valid commands include `$active`, `$buy`, and `$graph`\n")
+            await message.channel.send("> `$active` sends information on the most actively traded stocks\n> **To use $active:** enter *$active*\n")
+            await message.channel.send("> `$buy` looks at the stock's price and calculates how many shares you can buy with a given amount of money\n> **To use $buy:** enter *$buy*, the ticker symbol and the amount of money you would like to spend, all separated by spaces \n")
+            await message.channel.send("> `$graph` sends a graph of a given stock over a given time interval\n> **To use $graph:** enter *$graph*, the ticker symbol, the start and end date, and the time interval, all separated by spaces \n")
+
+
 client = DiscordBot()
 client.run(config("DISCORD_TOKEN"))
