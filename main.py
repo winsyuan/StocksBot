@@ -18,7 +18,6 @@ async def on_member_join(member):
     await member.send("Are you a new to investing?(yes/no)")
 
 
-# DMS a new client
 def valid_stock_check(stock):
     if len(stock.info) == 1:
         return False
@@ -36,7 +35,9 @@ def scrap_yahoo_trending_stocks():
                 "ticket": item.select("[aria-label=Symbol]")[0].get_text(),
                 "name": item.select("[aria-label=Name]")[0].get_text(),
                 "price": item.select("[aria-label*=Price]")[0].get_text(),
-                "change_percentage": item.select('[aria-label="% Change"]')[0].get_text(),
+                "change_percentage": item.select('[aria-label="% Change"]')[
+                    0
+                ].get_text(),
             }
             for item in data
         ]
@@ -53,22 +54,21 @@ async def on_message(message):
     if message.author == client.user:
         return
 
+    # DMS a new client
     if not message.guild:
         # Answer yes output
         if message.content.startswith("yes") or message.content.startswith("Yes"):
             await message.channel.send(
-                "How you can get started:"
+                "**How you can get started:**"
                 "\n1. You should open an account with a stocks brokerage("
                 "ex. Wealthsimple, Investing through your bank, Questrade, etc"
                 "\n2. Open a Tax Free Savings Account(TFSA), this will save you from paying any "
                 "taxes on the profits you make."
                 "\n3. Research companies and find stocks you are interested"
                 "\n4. When you you find a good entry point use your TFSA and start investing"
-                "\n\n Now that you are ready, this server will help you find stocks, the prices and "
-                "trends in the market"
-            )
-            await message.channel.send(
-                'Enter "$help" to find commands you can use in this server for analyzing stock'
+                "\n\nNow that you are ready, this server will help you find stocks, the prices and "
+                "trends in the market\n"
+                "Enter `$help` to find commands you can use in this server for analyzing stock"
             )
         # Answer with no
         elif message.content.startswith("no") or message.content.startswith("No"):
@@ -82,6 +82,7 @@ async def on_message(message):
             and not message.content.startswith("$active")
             and not message.content.startswith("$buy")
             and not message.content.startswith("$graph")
+            and not message.content.startswith("$ticket")
         ):
             await message.channel.send("Invalid input, please enter a valid input.")
     """
@@ -137,14 +138,11 @@ async def on_message(message):
         output_message += "```"
         await message.channel.send(output_message)
 
-
     def current_price(symbol):  # function to get current price of stock
         ticket = yf.Ticker(symbol)
         today_data = ticket.history(period="1d")
         return today_data["Close"][0]
 
-    if message.author == client.user:
-        return
     if message.content.startswith(
         "$buy"
     ):  # The bot outputs the amount of shares that can be bought
@@ -153,18 +151,22 @@ async def on_message(message):
             stock = buyMessage[1]
         except:
             await message.channel.send("No stock entered")
+            return
         try:
             money = buyMessage[2]
         except:
             await message.channel.send("Amount of money not entered")
+            return
         try:
             floatMoney = float(money)
         except:
             await message.channel.send("Please enter a valid number")
+            return
         try:
             stockPrice = current_price(stock)
         except:
             await message.channel.send("Not a valid stock")
+            return
         stockAmount = int(floatMoney // float(stockPrice))
         moneyLeftover = "{:.2f}".format(floatMoney % float(stockPrice))
         if stockAmount == 0:
