@@ -1,7 +1,5 @@
 import discord
 import os
-import random
-import matplotlib.pyplot as plt
 import mplfinance as mpf
 from decouple import config
 import yfinance as yf
