@@ -122,7 +122,8 @@ async def on_message(message):
         await message.channel.send(output_message)
 
     if message.content == "$active":
-        output_message = "**Most Active Stocks**```\nCompany Name | Ticker Symbol | Stock Price | Percentage Change  \n"
+
+        output_message = "**Most Active Stocks**```\nCompany Name | Ticker | Stock Price | Percentage Change  \n"
         data = scrap_yahoo_trending_stocks()
         for i in range(len(data)):
             output_message += (
